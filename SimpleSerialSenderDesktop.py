@@ -6,7 +6,7 @@ import time
 import argparse
 
 
-# check for ; in line if there is no ; then send line else send the line up to the comment
+# Do any string cleanup before sending
 def fixifyData(string):
     return string
 
