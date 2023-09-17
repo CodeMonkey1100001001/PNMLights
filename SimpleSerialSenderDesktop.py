@@ -52,7 +52,8 @@ for line in f:
     toSend = lStripped + '\r'
     toSend = toSend.encode('utf_8')
     s.write(toSend)
-    s.read_until(b'\n')
+    print(s.read_until(b'\n'))
+    #print(s.readall())
     s.flush()
     # time.sleep(0.025)
 f.close()
