@@ -1,5 +1,6 @@
 #!/usr/bin/python
-# tested on kubuntu 21.10
+# tested on kubuntu 21.10 desktop
+# this software sends a .pnm file over serial to a device that will display it
 import serial
 import time
 import argparse
