@@ -17,3 +17,6 @@ ffmpeg -y -i  inputanim.mp4 -f rawvideo -vf scale=16:16 -vsync vfr -pix_fmt rgb2
 ```
 
 The .raw files is stored on the virtual storage of a device.
+
+# WIP
+This is a work in progress.
