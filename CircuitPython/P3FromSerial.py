@@ -1,6 +1,9 @@
 # Read a P3 file from the serial port and display on NeoPixel strand. Usefull for an
+# Todo:
+# need to say which version of Circuit Python tested with
 # X * Y array of neopixels
 #ppm6_binary.py
+
 print("I Am P3FromSerial.py")
 print("Version 20230912.1019")
 #stty -F /dev/ttyACM0 300 raw ; cat </tmp/misc/P3Ascii_rainbow.ppm | tr '\n' '\r' >/dev/ttyACM0 
