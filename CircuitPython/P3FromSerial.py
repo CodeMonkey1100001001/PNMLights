@@ -79,46 +79,9 @@ while True:
                 theBuffer[rPos] = r
                 theBuffer[gPos] = g
                 theBuffer[bPos] = b
-
-
-
-
-
                 print("RGBPOS=",rPos,gPos,bPos)
-            
-
-                #rPos = y * xDimension * 3 + x + 0
-                #gPos = y * xDimension * 3 + x + 1
-                #bPos = y * xDimension * 3 + x + 3
-                #theBuffer[rPos] = r
-                #theBuffer[gPos] = g
-                #theBuffer[bPos] = b
-                #playPattern(theBuffer)
-                
-                #if disableZigZag or (y % 2) == 0:  # normal Direction
-                    #theBuffer[pixelPointer]=r
-                    #pixelPointer += 1
-                    #theBuffer[pixelPointer]=g
-                    #pixelPointer += 1
-                    #theBuffer[pixelPointer]=b
-                    #pixelPointer += 1
-                #else: # zig zag direction
-                    #theBuffer[ y * xDimension *2 - pixelPointer] = r # r
-                    #pixelPointer += 1
-
-                    #theBuffer[ y * xDimension *2 - pixelPointer] = g # g 
-                    #pixelPointer += 1
-
-                    #theBuffer[ y * xDimension *2 - pixelPointer] = b# b
-                    #pixelPointer += 1
-        
         playPattern(theBuffer)
         print("Done")
-    #aLine=fp.read(num_pixels*3)
-    #while aLine:
-        #print(aLine)
-        #playPattern(frameRate,aLine)
-        #aLine=fp.read(num_pixels*3)
 while True:
     pass
     
