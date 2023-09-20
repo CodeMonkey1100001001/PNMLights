@@ -26,10 +26,11 @@ knownCommands = {
     "+INFO": "info",
     "+CCLK": "cclk",
     "+RAND": "make_rand",
-    "+DIR" : "get_dir",
-    "+PLAY" : "play_file",
+    "+DIR": "get_dir",
+    "+PLAY": "play_file",
     "?": "help"
 }
+
 
 def play_file(arguments):
     global GLOBAL_fp
@@ -37,7 +38,7 @@ def play_file(arguments):
     global GLOBAL_pixel_width
     global GLOBAL_pixel_height
 
-    print("+INFO: playing file",arguments)
+    print("+INFO: playing file", arguments)
 
     if GLOBAL_fp != None:
         # close previous file
@@ -48,17 +49,17 @@ def play_file(arguments):
         print("+INFO: file not open")
         stats = os.stat(arguments)
         fileLen = stats[6]
-        print("+INFO: file",arguments,"size=",fileLen)
-        GLOBAL_fp = open(arguments,"rb")
+        print("+INFO: file", arguments, "size=", fileLen)
+        GLOBAL_fp = open(arguments, "rb")
         GLOBAL_frameSize = GLOBAL_pixel_height * GLOBAL_pixel_width * 3
-        totalFrames = int( fileLen / GLOBAL_frameSize)
+        totalFrames = int(fileLen / GLOBAL_frameSize)
         print("+INFO: frames", totalFrames)
     return True
 
 
 def get_dir(arguments):
-    print("arguments",arguments)
-    if len(arguments) <1:
+    print("arguments", arguments)
+    if len(arguments) < 1:
         rootPath = "/sd"
     else:
         rootPath = arguments
@@ -67,8 +68,9 @@ def get_dir(arguments):
     for file in os.listdir(rootPath):
         stats = os.stat(rootPath + "/" + file)
         filesize = stats[6]
-        print(file, filesize)
+        print(rootPath + "/" + file, filesize)
     return True
+
 
 def doNothing(ignoreme):
     return True
@@ -79,8 +81,8 @@ def printSerial(whatToPrint):
 
 
 def id(arguments):
-    global uart, swVersion
-    print("+ID: "+swVersion)
+    global swVersion
+    print("+ID: " + swVersion)
     print('+IDOS: ' + str(os.uname()) + "\r\n")
     return True
 
@@ -244,46 +246,59 @@ def compareCommand(needle, haystack):
 
     return retV
 
+
 def playOneFrame():
     global GLOBAL_fp
     global GLOBAL_frameSize
-    global GLOBAL_pixel_height
-    global GLOBAL_pixel_width
+    # global GLOBAL_pixel_height
+    # global GLOBAL_pixel_width
     aFrame = GLOBAL_fp.read(GLOBAL_frameSize)
-    #print("reading",GLOBAL_frameSize,"bytes")
-    #zig zag?
-    # for i in range(GLOBAL_pixel_height):
-    #     if i % 2 == 0:
-    #         # flip this line but do it in pairs of 3
-    #         for j in range(GLOBAL_pixel_width / 2):
-    #             tempValue = aFrame[i*GLOBAL_pixel_height + j ]
-    #             aFrame[i*GLOBAL_pixel_height + GLOBAL_pixel_width - j] = tempValue
-    playPattern(0.001,aFrame)
-    # hexDumpStr(aFrame)
-    #print("frame")
     if not aFrame:
         print("+INFO: at the end of the file rewind")
         GLOBAL_fp.seek(0)
         # time.sleep(1)
+    else:
+        playPattern(0.001, aFrame)
 
-def playPattern(frameRate,theIncomingLine):
+
+def playPattern(frameRate, incomingFrame):
     global strip_numPixels
-    global np
+    # global np
     global GLOBAL_pixels
-    #print("incomingline",theIncomingLine)
-    #speed=int(theIncomingLine[0:2],16)
-    #print("speed",speed/1000)
-    theLineLen = int(len(theIncomingLine)/3)
-    #print("theLineLen",theLineLen)
-    for i in range(0,theLineLen):
-        pos = (i * 3 )
-        r = theIncomingLine[pos+0]
-        g = theIncomingLine[pos+1]
-        b = theIncomingLine[pos+2]
-        GLOBAL_pixels[i] = (r,g,b)
+    # to zig zag need to know how many bytes per each line
+    global GLOBAL_pixel_width
+    global GLOBAL_zigzag_enabled
+
+    incomingFrameSize = int(len(incomingFrame))
+    oneLineSize = GLOBAL_pixel_width * 3
+    # print("incomingFrameSize", incomingFrameSize, "oneLineSize", oneLineSize,"gpw",GLOBAL_pixel_width)
+
+    # it is using if and then the algo so that without zigzag the frame rate can be higher
+    if GLOBAL_zigzag_enabled:
+        # dealing with zig zag
+        for i in range(0, int(incomingFrameSize / oneLineSize)):
+            # zig
+            for j in range(0, int(oneLineSize / 3)):
+                if (i % 2 == 0):
+                    pos = (i * oneLineSize) + (j * 3)  # zig
+                else:
+                    pos = (i * oneLineSize) + oneLineSize - (j * 3) - 3  # zag
+                # print("pos",pos)
+                r = incomingFrame[pos + 0]
+                g = incomingFrame[pos + 1]
+                b = incomingFrame[pos + 2]
+                GLOBAL_pixels[i * GLOBAL_pixel_width + j] = (r, g, b)
+    else:
+        # without having to deal with zigzag
+        for i in range(0, int(incomingFrameSize / 3)):
+            pos = (i * 3)
+            r = incomingFrame[pos + 0]
+            g = incomingFrame[pos + 1]
+            b = incomingFrame[pos + 2]
+            GLOBAL_pixels[i] = (r, g, b)
     GLOBAL_pixels.show()
     time.sleep(frameRate)
-    #time.sleep(0.530)
+    # time.sleep(0.530)
 
 
 def doOtherStuff(timeNow):
@@ -293,6 +308,7 @@ def doOtherStuff(timeNow):
         print("+INFO: Tick", timeNow)
         tickTime = timeNow
     # if playing a file do the next frame
+    # TODO dont play frame unless it is time
     if GLOBAL_fp != None:
         playOneFrame()
 
@@ -320,17 +336,16 @@ GLOBAL_fp = None
 GLOBAL_frameSize = None
 GLOBAL_pixel_height = 16
 GLOBAL_pixel_width = 16
-
+GLOBAL_zigzag_enabled = True
 pixel_pin = board.A3
 pixel_width = 16
 pixel_height = 16
-num_pixels = 16*16
+num_pixels = 16 * 16
 
-
-#Init pixels
+# Init pixels
 GLOBAL_pixels = neopixel.NeoPixel(pixel_pin, num_pixels, brightness=0.3, auto_write=False)
 
-
+# play_file("/sd/bigvideo.raw")
 
 while True:
     now = time.monotonic()
